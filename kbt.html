@@ -1,0 +1,874 @@
+<html>
+  <head>
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="" />
+    <link
+      rel="stylesheet"
+      as="style"
+      onload="this.rel='stylesheet'"
+      href="https://fonts.googleapis.com/css2?display=swap&amp;family=Epilogue%3Awght%40400%3B500%3B700%3B900&amp;family=Noto+Sans%3Awght%40400%3B500%3B700%3B900"
+    />
+
+    <title>Galileo Design</title>
+    <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64," />
+
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <style>
+      @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      
+      @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+      }
+      
+      @keyframes slideIn {
+        from { transform: translateX(-100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+      }
+      
+      .animate-fade-in-up { animation: fadeInUp 0.6s ease-out; }
+      .animate-pulse-hover { transition: transform 0.3s ease; }
+      .animate-pulse-hover:hover { animation: pulse 0.6s ease-in-out; }
+      .animate-slide-in { animation: slideIn 0.5s ease-out; }
+      
+      .gradient-text {
+        background: linear-gradient(135deg, #20df20, #1ab31a, #20df20);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      
+      .glass-effect {
+        backdrop-filter: blur(10px);
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+      
+      .cart-count {
+        animation: bounce 0.5s ease-in-out;
+      }
+      
+      @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+      }
+      
+      .notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1000;
+        transform: translateX(400px);
+        transition: transform 0.3s ease-in-out;
+      }
+      
+      .notification.show {
+        transform: translateX(0);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Notification -->
+    <div id="notification" class="notification bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg">
+      <span id="notification-text">Item added to cart!</span>
+    </div>
+
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="fixed inset-0 bg-white z-50 flex items-center justify-center">
+      <div class="text-center">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto mb-4"></div>
+        <p class="text-lg font-semibold text-gray-700">Loading delicious content...</p>
+      </div>
+    </div>
+
+    <div class="relative flex size-full min-h-screen flex-col bg-white group/design-root overflow-x-hidden" style='font-family: Epilogue, "Noto Sans", sans-serif;'>
+      <div class="layout-container flex h-full grow flex-col">
+        <!-- Enhanced Header with Cart Counter -->
+        <header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#f0f4f0] px-10 py-3 sticky top-0 bg-white z-40 shadow-sm">
+          <div class="flex items-center gap-4 text-[#111711]">
+            <div class="size-4 animate-pulse-hover">
+              <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M24 4C25.7818 14.2173 33.7827 22.2182 44 24C33.7827 25.7818 25.7818 33.7827 24 44C22.2182 33.7827 14.2173 25.7818 4 24C14.2173 22.2182 22.2182 14.2173 24 4Z"
+                  fill="currentColor"
+                ></path>
+              </svg>
+            </div>
+            <h2 class="text-[#111711] text-lg font-bold leading-tight tracking-[-0.015em] gradient-text">RINIS Cheesecake</h2>
+          </div>
+          <div class="flex flex-1 justify-end gap-8">
+            <!-- Enhanced Search -->
+            <label class="flex flex-col min-w-40 !h-10 max-w-64">
+              <div class="flex w-full flex-1 items-stretch rounded-xl h-full">
+                <div
+                  class="text-[#648764] flex border-none bg-[#f0f4f0] items-center justify-center pl-4 rounded-l-xl border-r-0"
+                  data-icon="MagnifyingGlass"
+                  data-size="24px"
+                  data-weight="regular"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
+                    <path
+                      d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"
+                    ></path>
+                  </svg>
+                </div>
+                <input
+                  id="search-input"
+                  placeholder="Search products..."
+                  class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-xl text-[#111711] focus:outline-0 focus:ring-0 border-none bg-[#f0f4f0] focus:border-none h-full placeholder:text-[#648764] px-4 rounded-l-none border-l-0 pl-2 text-base font-normal leading-normal"
+                  value=""
+                />
+              </div>
+            </label>
+            <div class="flex gap-2">
+              <!-- Cart with Counter -->
+              <button
+                id="cart-btn"
+                class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-10 bg-[#f0f4f0] text-[#111711] gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5 relative animate-pulse-hover"
+              >
+                <div class="text-[#111711]" data-icon="ShoppingCart" data-size="20px" data-weight="regular">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor" viewBox="0 0 256 256">
+                    <path
+                      d="M222.14,58.87A8,8,0,0,0,216,56H54.68L49.79,29.14A16,16,0,0,0,34.05,16H16a8,8,0,0,0,0,16h18L59.56,172.29a24,24,0,0,0,5.33,11.27,28,28,0,1,0,44.4,8.44h45.42A27.75,27.75,0,0,0,152,204a28,28,0,1,0,28-28H83.17a8,8,0,0,1-7.87-6.57L72.13,152h116a24,24,0,0,0,23.61-19.71l12.16-66.86A8,8,0,0,0,222.14,58.87ZM96,204a12,12,0,1,1-12-12A12,12,0,0,1,96,204Zm96,0a12,12,0,1,1-12-12A12,12,0,0,1,192,204Zm4-74.57A8,8,0,0,1,188.1,136H69.22L57.59,72H206.41Z"
+                    ></path>
+                  </svg>
+                </div>
+                <span id="cart-count" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
+              </button>
+              <!-- Wishlist with Counter -->
+              <button
+                id="wishlist-btn"
+                class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-10 bg-[#f0f4f0] text-[#111711] gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5 relative animate-pulse-hover"
+              >
+                <div class="text-[#111711]" data-icon="Heart" data-size="20px" data-weight="regular">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor" viewBox="0 0 256 256">
+                    <path
+                      d="M178,32c-20.65,0-38.73,8.88-50,23.89C116.73,40.88,98.65,32,78,32A62.07,62.07,0,0,0,16,94c0,70,103.79,126.66,108.21,129a8,8,0,0,0,7.58,0C136.21,220.66,240,164,240,94A62.07,62.07,0,0,0,178,32ZM128,206.8C109.74,196.16,32,147.69,32,94A46.06,46.06,0,0,1,78,48c19.45,0,35.78,10.36,42.6,27a8,8,0,0,0,14.8,0c6.82-16.67,23.15-27,42.6-27a46.06,46.06,0,0,1,46,46C224,147.61,146.24,196.15,128,206.8Z"
+                    ></path>
+                  </svg>
+                </div>
+                <span id="wishlist-count" class="absolute -top-2 -right-2 bg-pink-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
+              </button>
+              <!-- User Profile -->
+              <button
+                class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-10 bg-[#f0f4f0] text-[#111711] gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5 animate-pulse-hover"
+              >
+                <div class="text-[#111711]" data-icon="User" data-size="20px" data-weight="regular">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor" viewBox="0 0 256 256">
+                    <path
+                      d="M230.92,212c-15.23-26.33-38.7-45.21-66.09-54.16a72,72,0,1,0-73.66,0C63.78,166.78,40.31,185.66,25.08,212a8,8,0,1,0,13.85,8c18.84-32.56,52.14-52,89.07-52s70.23,19.44,89.07,52a8,8,0,1,0,13.85-8ZM72,96a56,56,0,1,1,56,56A56.06,56.06,0,0,1,72,96Z"
+                    ></path>
+                  </svg>
+                </div>
+              </button>
+            </div>
+            <div
+              class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 animate-pulse-hover cursor-pointer"
+              style='background-image: url("https://cdn.usegalileo.ai/sdxl10/280a1a13-b902-4048-8b49-8256367f91eb.png");'
+            ></div>
+          </div>
+        </header>
+
+        <div class="px-40 flex flex-1 justify-center py-5">
+          <div class="layout-content-container flex flex-col max-w-[960px] flex-1">
+            <!-- Enhanced Hero Section -->
+            <div class="@container">
+              <div class="@[480px]:p-4">
+                <div
+                  class="flex min-h-[480px] flex-col gap-6 bg-cover bg-center bg-no-repeat @[480px]:gap-8 @[480px]:rounded-xl items-center justify-center p-4 relative overflow-hidden"
+                  style='background-image: linear-gradient(rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.4) 100%), url("1.jpg");'
+                >
+                  <!-- Floating Elements -->
+                  <div class="absolute top-10 left-10 w-4 h-4 bg-green-400 rounded-full opacity-70 animate-bounce" style="animation-delay: 0.5s;"></div>
+                  <div class="absolute top-20 right-20 w-3 h-3 bg-white rounded-full opacity-60 animate-bounce" style="animation-delay: 1s;"></div>
+                  <div class="absolute bottom-20 left-20 w-2 h-2 bg-green-300 rounded-full opacity-80 animate-bounce" style="animation-delay: 1.5s;"></div>
+                  
+                  <div class="flex flex-col gap-2 text-center animate-fade-in-up">
+                    <h1
+                      class="text-white text-4xl font-black leading-tight tracking-[-0.033em] @[480px]:text-5xl @[480px]:font-black @[480px]:leading-tight @[480px]:tracking-[-0.033em]"
+                    >
+                      RINIS Moringa Cheesecake
+                    </h1>
+                    <h2 class="text-white text-sm font-normal leading-normal @[480px]:text-base @[480px]:font-normal @[480px]:leading-normal">
+                      A new, healthy cheesecake made with moringa leaves
+                    </h2>
+                    <!-- Rating Stars -->
+                    <div class="flex justify-center gap-1 mt-2">
+                      <span class="text-yellow-400 text-lg">⭐⭐⭐⭐⭐</span>
+                      <span class="text-white text-sm ml-2">(4.9/5 from 2,847 reviews)</span>
+                    </div>
+                  </div>
+                  <div class="flex gap-4">
+                    <button
+                      id="hero-buy-btn"
+                      class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-10 px-4 @[480px]:h-12 @[480px]:px-5 bg-[#20df20] text-[#111711] text-sm font-bold leading-normal tracking-[0.015em] @[480px]:text-base @[480px]:font-bold @[480px]:leading-normal @[480px]:tracking-[0.015em] animate-pulse-hover transform transition-all duration-300 hover:scale-105"
+                    >
+                      <span class="truncate">Buy Now - Rp30.000,00</span>
+                    </button>
+                    <button
+                      id="hero-learn-btn"
+                      class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-10 px-4 @[480px]:h-12 @[480px]:px-5 glass-effect text-white text-sm font-bold leading-normal tracking-[0.015em] @[480px]:text-base @[480px]:font-bold @[480px]:leading-normal @[480px]:tracking-[0.015em] animate-pulse-hover"
+                    >
+                      <span class="truncate">Learn More</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Quick Stats Section -->
+            <div class="grid grid-cols-4 gap-4 p-4 my-6">
+              <div class="text-center animate-fade-in-up" style="animation-delay: 0.1s;">
+                <div class="text-2xl font-bold text-green-600">2,847+</div>
+                <div class="text-sm text-gray-600">Happy Customers</div>
+              </div>
+              <div class="text-center animate-fade-in-up" style="animation-delay: 0.2s;">
+                <div class="text-2xl font-bold text-green-600">100%</div>
+                <div class="text-sm text-gray-600">Natural Ingredients</div>
+              </div>
+              <div class="text-center animate-fade-in-up" style="animation-delay: 0.3s;">
+                <div class="text-2xl font-bold text-green-600">24h</div>
+                <div class="text-sm text-gray-600">Fresh Delivery</div>
+              </div>
+              <div class="text-center animate-fade-in-up" style="animation-delay: 0.4s;">
+                <div class="text-2xl font-bold text-green-600">4.9★</div>
+                <div class="text-sm text-gray-600">Average Rating</div>
+              </div>
+            </div>
+
+            <!-- Enhanced Best Sellers -->
+            <div class="flex justify-between items-center px-4 pb-3 pt-5">
+              <h2 class="text-[#111711] text-[22px] font-bold leading-tight tracking-[-0.015em]">Our Best Sellers</h2>
+              <div class="flex gap-2">
+                <button id="filter-all" class="px-4 py-2 rounded-full bg-green-500 text-white text-sm font-medium">All</button>
+                <button id="filter-original" class="px-4 py-2 rounded-full bg-gray-200 text-gray-700 text-sm font-medium">Original</button>
+                <button id="filter-flavored" class="px-4 py-2 rounded-full bg-gray-200 text-gray-700 text-sm font-medium">Flavored</button>
+              </div>
+            </div>
+            
+            <div id="products-grid" class="grid grid-cols-[repeat(auto-fit,minmax(158px,1fr))] gap-3 p-4">
+              <!-- Product 1 -->
+              <div class="flex flex-col gap-3 pb-3 product-card animate-fade-in-up transform transition-all duration-300 hover:scale-105" data-category="original" data-price="24.99">
+                <div class="relative group">
+                  <div
+                    class="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-xl cursor-pointer"
+                    style='background-image: url("2.jpg");'
+                  ></div>
+                  <!-- Hover overlay -->
+                  <div class="absolute inset-0 bg-black bg-opacity-50 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2">
+                    <button class="add-to-cart bg-green-500 text-white px-3 py-1 rounded-lg text-sm font-medium" data-product="Original Moringa Cheesecake" data-price="24.99">Add to Cart</button>
+                    <button class="add-to-wishlist bg-pink-500 text-white px-3 py-1 rounded-lg text-sm font-medium" data-product="Original Moringa Cheesecake">♥</button>
+                  </div>
+                  <!-- Discount badge -->
+                  <div class="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold">best seller</div>
+                </div>
+                <div>
+                  <p class="text-[#111711] text-base font-medium leading-normal">Original Moringa Cheesecake</p>
+                  <p class="text-green-600 text-sm font-bold">Rp30.000,00 
+                  <div class="flex items-center gap-1 mt-1">
+                    <span class="text-yellow-400 text-sm">⭐⭐⭐⭐⭐</span>
+                    <span class="text-gray-500 text-xs">(128)</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Product 2 -->
+              <div class="flex flex-col gap-3 pb-3 product-card animate-fade-in-up transform transition-all duration-300 hover:scale-105" data-category="flavored" data-price="27.99" style="animation-delay: 0.1s;">
+                <div class="relative group">
+                  <div
+                    class="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-xl cursor-pointer"
+                    style='background-image: url("matcha.png");'
+                  ></div>
+                  <div class="absolute inset-0 bg-black bg-opacity-50 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2">
+                    <button class="add-to-cart bg-green-500 text-white px-3 py-1 rounded-lg text-sm font-medium" data-product="Moringa Matcha Cheesecake" data-price="27.99">Add to Cart</button>
+                    <button class="add-to-wishlist bg-pink-500 text-white px-3 py-1 rounded-lg text-sm font-medium" data-product="Moringa Matcha Cheesecake">♥</button>
+                  </div>
+                  <div class="absolute top-2 left-2 bg-orange-500 text-white px-2 py-1 rounded-full text-xs font-bold">NEW</div>
+                </div>
+                <div>
+                  <p class="text-[#111711] text-base font-medium leading-normal">Moringa Matcha Cheesecake</p>
+                  <p class="text-green-600 text-sm font-bold">Rp35.000,00</p>
+                  <div class="flex items-center gap-1 mt-1">
+                    <span class="text-yellow-400 text-sm">⭐⭐⭐⭐⭐</span>
+                    <span class="text-gray-500 text-xs">(94)</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Product 3 -->
+              <div class="flex flex-col gap-3 pb-3 product-card animate-fade-in-up transform transition-all duration-300 hover:scale-105" data-category="flavored" data-price="26.99" style="animation-delay: 0.2s;">
+                <div class="relative group">
+                  <div
+                    class="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-xl cursor-pointer"
+                    style='background-image: url("chocholate.png");'
+                  ></div>
+                  <div class="absolute inset-0 bg-black bg-opacity-50 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2">
+                    <button class="add-to-cart bg-green-500 text-white px-3 py-1 rounded-lg text-sm font-medium" data-product="Moringa Chocolate Cheesecake" data-price="26.99">Add to Cart</button>
+                    <button class="add-to-wishlist bg-pink-500 text-white px-3 py-1 rounded-lg text-sm font-medium" data-product="Moringa Chocolate Cheesecake">♥</button>
+                  </div>
+                </div>
+                <div>
+                  <p class="text-[#111711] text-base font-medium leading-normal">Moringa Chocolate Cheesecake</p>
+                  <p class="text-green-600 text-sm font-bold">Rp35.000,00</p>
+                  <div class="flex items-center gap-1 mt-1">
+                    <span class="text-yellow-400 text-sm">⭐⭐⭐⭐⭐</span>
+                    <span class="text-gray-500 text-xs">(156)</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Product 4 -->
+              <div class="flex flex-col gap-3 pb-3 product-card animate-fade-in-up transform transition-all duration-300 hover:scale-105" data-category="flavored" data-price="28.99" style="animation-delay: 0.3s;">
+                <div class="relative group">
+                  <div
+                    class="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-xl cursor-pointer"
+                    style='background-image: url("blueberry.png");'
+                  ></div>
+                  <div class="absolute inset-0 bg-black bg-opacity-50 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2">
+                    <button class="add-to-cart bg-green-500 text-white px-3 py-1 rounded-lg text-sm font-medium" data-product="Moringa Blueberry Cheesecake" data-price="28.99">Add to Cart</button>
+                    <button class="add-to-wishlist bg-pink-500 text-white px-3 py-1 rounded-lg text-sm font-medium" data-product="Moringa Blueberry Cheesecake">♥</button>
+                  </div>
+                  <div class="absolute top-2 left-2 bg-purple-500 text-white px-2 py-1 rounded-full text-xs font-bold">LIMITED</div>
+                </div>
+                <div>
+                  <p class="text-[#111711] text-base font-medium leading-normal">Moringa Blueberry Cheesecake</p>
+                  <p class="text-green-600 text-sm font-bold">Rp40.000,00</p>
+                  <div class="flex items-center gap-1 mt-1">
+                    <span class="text-yellow-400 text-sm">⭐⭐⭐⭐⭐</span>
+                    <span class="text-gray-500 text-xs">(203)</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Interactive Features Section -->
+            <div class="bg-gradient-to-r from-green-50 to-blue-50 rounded-xl p-6 my-8">
+              <h3 class="text-2xl font-bold text-center mb-6 gradient-text">Interactive Features</h3>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Nutritional Calculator -->
+                <div class="bg-white rounded-lg p-4 shadow-lg">
+                  <h4 class="font-bold text-lg mb-3">🧮 Nutrition Calculator</h4>
+                  <div class="space-y-2">
+                    <label class="block text-sm">Servings:</label>
+                    <input id="servings-input" type="number" value="1" min="1" max="10" class="w-full p-2 border rounded">
+                    <div id="nutrition-display" class="text-sm bg-gray-50 p-2 rounded">
+                      <div>Calories: <span class="font-bold">220</span></div>
+                      <div>Protein: <span class="font-bold">8g</span></div>
+                      <div>Fiber: <span class="font-bold">4g</span></div>
+                      <div>Vitamins: <span class="font-bold">High</span></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Live Chat -->
+                <div class="bg-white rounded-lg p-4 shadow-lg">
+                  <h4 class="font-bold text-lg mb-3">💬 Live Chat Support</h4>
+                  <div id="chat-messages" class="h-24 overflow-y-auto bg-gray-50 p-2 rounded mb-2 text-sm">
+                    <div class="text-green-600 mb-1">Bot: Hi! How can I help you today? 😊</div>
+                  </div>
+                  <div class="flex gap-2">
+                    <input id="chat-input" type="text" placeholder="Type your message..." class="flex-1 p-2 border rounded text-sm">
+                    <button id="chat-send" class="bg-green-500 text-white px-3 py-1 rounded text-sm">Send</button>
+                  </div>
+                </div>
+
+                <!-- Recipe Suggestion -->
+                <div class="bg-white rounded-lg p-4 shadow-lg">
+                  <h4 class="font-bold text-lg mb-3">🍰 Recipe Pairing</h4>
+                  <button id="recipe-btn" class="w-full bg-green-500 text-white py-2 rounded hover:bg-green-600 transition-colors">
+                    Get Pairing Suggestions
+                  </button>
+                  <div id="recipe-suggestions" class="mt-3 text-sm space-y-1 hidden">
+                    <div class="bg-yellow-50 p-2 rounded">☕ Perfect with Green Tea</div>
+                    <div class="bg-blue-50 p-2 rounded">🫐 Pairs well with fresh berries</div>
+                    <div class="bg-purple-50 p-2 rounded">🥛 Great with almond milk</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Customer Reviews Section -->
+            <div class="my-8">
+              <h3 class="text-2xl font-bold text-center mb-6">What Our Customers Say</h3>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-white p-4 rounded-lg shadow-lg animate-fade-in-up">
+                  <div class="flex items-center mb-2">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-pink-400 to-purple-500 flex items-center justify-center text-white font-bold">S</div>
+                    <div class="ml-3">
+                      <div class="font-semibold">Sarah M.</div>
+                      <div class="text-yellow-400 text-sm">⭐⭐⭐⭐⭐</div>
+                    </div>
+                  </div>
+                  <p class="text-gray-600 text-sm italic">"Absolutely delicious! The moringa adds such a unique and healthy twist to traditional cheesecake. My family loves it!"</p>
+                </div>
+                
+                <div class="bg-white p-4 rounded-lg shadow-lg animate-fade-in-up" style="animation-delay: 0.1s;">
+                  <div class="flex items-center mb-2">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-blue-400 to-green-500 flex items-center justify-center text-white font-bold">M</div>
+                    <div class="ml-3">
+                      <div class="font-semibold">Mike T.</div>
+                      <div class="text-yellow-400 text-sm">⭐⭐⭐⭐⭐</div>
+                    </div>
+                  </div>
+                  <p class="text-gray-600 text-sm italic">"I was skeptical at first, but this is now my go-to dessert. The texture is perfect and I love knowing it's good for me too!"</p>
+                </div>
+                
+                <div class="bg-white p-4 rounded-lg shadow-lg animate-fade-in-up" style="animation-delay: 0.2s;">
+                  <div class="flex items-center mb-2">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-green-400 to-yellow-500 flex items-center justify-center text-white font-bold">L</div>
+                    <div class="ml-3">
+                      <div class="font-semibold">Lisa K.</div>
+                      <div class="text-yellow-400 text-sm">⭐⭐⭐⭐⭐</div>
+                    </div>
+                  </div>
+                  <p class="text-gray-600 text-sm italic">"The matcha flavor is incredible! Fast delivery and excellent packaging. Will definitely order again!"</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Enhanced Why Choose Us Section -->
+            <div class="flex flex-col gap-10 px-4 py-10 @container">
+              <div class="flex flex-col gap-6">
+                <div class="flex flex-col gap-4">
+                  <h1
+                    class="text-[#111711] tracking-light text-[32px] font-bold leading-tight @[480px]:text-4xl @[480px]:font-black @[480px]:leading-tight @[480px]:tracking-[-0.033em] max-w-[720px] animate-fade-in-up"
+                  >
+                    Why Choose Us?
+                  </h1>
+                  <p class="text-[#111711] text-base font-normal leading-normal max-w-[720px] animate-fade-in-up" style="animation-delay: 0.1s;">
+                    At Moringa Cheesecake, we pride ourselves on creating delicious, healthy cheesecakes that are good for you and the planet. Our moringa cheesecakes are made with
+                    only the finest ingredients, and we use sustainable packaging to reduce our environmental footprint.
+                  </p>
+                </div>
+                <div class="flex gap-4">
+                  <button
+                    id="shop-now-btn"
+                    class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-10 px-4 @[480px]:h-12 @[480px]:px-5 bg-[#20df20] text-[#111711] text-sm font-bold leading-normal tracking-[0.015em] @[480px]:text-base @[480px]:font-bold @[480px]:leading-normal @[480px]:tracking-[0.015em] w-fit animate-pulse-hover"
+                  >
+                    <span class="truncate">Shop Now</span>
+                  </button>
+                  <button
+                    id="newsletter-btn"
+                    class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-10 px-4 @[480px]:h-12 @[480px]:px-5 bg-gray-200 text-[#111711] text-sm font-bold leading-normal tracking-[0.015em] @[480px]:text-base @[480px]:font-bold @[480px]:leading-normal @[480px]:tracking-[0.015em] w-fit animate-pulse-hover"
+                  >
+                    <span class="truncate">Join Newsletter</span>
+                  </button>
+                </div>
+              </div>
+              <div class="grid grid-cols-[repeat(auto-fit,minmax(158px,1fr))] gap-3">
+                <div class="flex flex-col gap-3 pb-3 animate-fade-in-up">
+                  <div
+                    class="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-xl transform transition-all duration-300 hover:scale-105"
+                    style='background-image: url("1.jpg");'
+                  ></div>
+                  <div>
+                    <p class="text-[#111711] text-base font-medium leading-normal">Healthy Ingredients</p>
+                    <p class="text-[#648764] text-sm font-normal leading-normal">Only the freshest moringa leaves are used in our cheesecakes</p>
+                  </div>
+                </div>
+                <div class="flex flex-col gap-3 pb-3 animate-fade-in-up" style="animation-delay: 0.1s;">
+                  <div
+                    class="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-xl transform transition-all duration-300 hover:scale-105"
+                    style='background-image: url("2.jpg");'
+                  ></div>
+                  <div>
+                    <p class="text-[#111711] text-base font-medium leading-normal">Delicious Taste</p>
+                    <p class="text-[#648764] text-sm font-normal leading-normal">Our moringa cheesecakes are a delicious and healthy alternative to traditional cheesecakes</p>
+                  </div>
+                </div>
+                <div class="flex flex-col gap-3 pb-3 animate-fade-in-up" style="animation-delay: 0.2s;">
+                  <div
+                    class="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-xl transform transition-all duration-300 hover:scale-105"
+                    style='background-image: url("3.jpg");'
+                  ></div>
+                  <div>
+                    <p class="text-[#111711] text-base font-medium leading-normal">Sustainable Packaging</p>
+                    <p class="text-[#648764] text-sm font-normal leading-normal">We use sustainable packaging to reduce our environmental impact</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Ingredient Information -->
+            <div class="grid grid-cols-[repeat(auto-fit,minmax(158px,1fr))] gap-3 p-4">
+              <div class="flex flex-col gap-3 pb-3 animate-fade-in-up">
+                <div
+                  class="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-xl transform transition-all duration-300 hover:scale-105 cursor-pointer"
+                  style='background-image: url("https://cdn.usegalileo.ai/sdxl10/7c7bf25f-e568-49cb-89a0-1e1e516d4692.png");'
+                  onclick="showIngredientInfo('moringa-leaves')"
+                ></div>
+                <div>
+                  <p class="text-[#111711] text-base font-medium leading-normal">Moringa Leaves</p>
+                  <p class="text-[#648764] text-sm font-normal leading-normal">Fresh moringa leaves are used in our cheesecakes</p>
+                  <button class="text-green-600 text-sm font-medium mt-1">Learn More →</button>
+                </div>
+              </div>
+              <div class="flex flex-col gap-3 pb-3 animate-fade-in-up" style="animation-delay: 0.1s;">
+                <div
+                  class="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-xl transform transition-all duration-300 hover:scale-105 cursor-pointer"
+                  style='background-image: url("https://cdn.usegalileo.ai/sdxl10/de34b57e-f632-4153-8319-fa9c491fe6a2.png");'
+                  onclick="showIngredientInfo('moringa-tree')"
+                ></div>
+                <div>
+                  <p class="text-[#111711] text-base font-medium leading-normal">Moringa Tree</p>
+                  <p class="text-[#648764] text-sm font-normal leading-normal">Moringa trees are grown in tropical and subtropical regions</p>
+                  <button class="text-green-600 text-sm font-medium mt-1">Learn More →</button>
+                </div>
+              </div>
+              <div class="flex flex-col gap-3 pb-3 animate-fade-in-up" style="animation-delay: 0.2s;">
+                <div
+                  class="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-xl transform transition-all duration-300 hover:scale-105 cursor-pointer"
+                  style='background-image: url("https://cdn.usegalileo.ai/sdxl10/a2d07929-221a-4e33-81a8-a061007444f1.png");'
+                  onclick="showIngredientInfo('moringa-powder')"
+                ></div>
+                <div>
+                  <p class="text-[#111711] text-base font-medium leading-normal">Moringa Powder</p>
+                  <p class="text-[#648764] text-sm font-normal leading-normal">Moringa powder is a rich source of vitamins and minerals</p>
+                  <button class="text-green-600 text-sm font-medium mt-1">Learn More →</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Newsletter Signup -->
+            <div class="bg-gradient-to-r from-green-400 to-blue-500 rounded-xl p-8 text-white text-center my-8">
+              <h3 class="text-2xl font-bold mb-4">Stay Updated!</h3>
+              <p class="mb-6">Get the latest news, recipes, and exclusive offers delivered to your inbox.</p>
+              <div class="flex gap-2 max-w-md mx-auto">
+                <input id="newsletter-email" type="email" placeholder="Enter your email" class="flex-1 p-3 rounded-lg text-gray-800">
+                <button id="newsletter-submit" class="bg-white text-green-600 px-6 py-3 rounded-lg font-bold hover:bg-gray-100 transition-colors">Subscribe</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Enhanced Footer -->
+        <footer class="bg-gray-900 text-white py-12 px-10">
+          <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+              <div class="flex items-center gap-2 mb-4">
+                <div class="size-6">
+                  <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M24 4C25.7818 14.2173 33.7827 22.2182 44 24C33.7827 25.7818 25.7818 33.7827 24 44C22.2182 33.7827 14.2173 25.7818 4 24C14.2173 22.2182 22.2182 14.2173 24 4Z" fill="currentColor"></path>
+                  </svg>
+                </div>
+                <h3 class="text-xl font-bold">Moringa Cheesecake</h3>
+              </div>
+              <p class="text-gray-400 text-sm">Healthy, delicious, and sustainable cheesecakes made with premium moringa leaves.</p>
+            </div>
+            <div>
+              <h4 class="font-bold mb-4">Quick Links</h4>
+              <ul class="space-y-2 text-sm text-gray-400">
+                <li><a href="#" class="hover:text-white transition-colors">Home</a></li>
+                <li><a href="#" class="hover:text-white transition-colors">Products</a></li>
+                <li><a href="#" class="hover:text-white transition-colors">About Us</a></li>
+                <li><a href="#" class="hover:text-white transition-colors">Contact</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4 class="font-bold mb-4">Customer Service</h4>
+              <ul class="space-y-2 text-sm text-gray-400">
+                <li><a href="#" class="hover:text-white transition-colors">FAQ</a></li>
+                <li><a href="#" class="hover:text-white transition-colors">Shipping Info</a></li>
+                <li><a href="#" class="hover:text-white transition-colors">Returns</a></li>
+                <li><a href="#" class="hover:text-white transition-colors">Support</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4 class="font-bold mb-4">Follow Us</h4>
+              <div class="flex gap-4">
+                <a href="#" class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors">f</a>
+                <a href="#" class="w-8 h-8 bg-pink-600 rounded-full flex items-center justify-center hover:bg-pink-700 transition-colors">i</a>
+                <a href="#" class="w-8 h-8 bg-blue-400 rounded-full flex items-center justify-center hover:bg-blue-500 transition-colors">t</a>
+              </div>
+            </div>
+          </div>
+          <div class="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-400">
+            <p>&copy; 2024 Moringa Cheesecake. All rights reserved.</p>
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <!-- Modal for Ingredient Information -->
+    <div id="ingredient-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
+      <div class="bg-white rounded-xl p-8 max-w-md mx-4">
+        <h3 id="modal-title" class="text-2xl font-bold mb-4"></h3>
+        <p id="modal-content" class="text-gray-600 mb-6"></p>
+        <button id="close-modal" class="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 transition-colors">Close</button>
+      </div>
+    </div>
+
+    <script>
+      // Loading screen
+      window.addEventListener('load', function() {
+        setTimeout(() => {
+          document.getElementById('loading-screen').style.display = 'none';
+        }, 1500);
+      });
+
+      // Cart functionality
+      let cart = [];
+      let wishlist = [];
+
+      function updateCartCount() {
+        const cartCount = document.getElementById('cart-count');
+        if (cart.length > 0) {
+          cartCount.textContent = cart.length;
+          cartCount.classList.remove('hidden');
+          cartCount.classList.add('cart-count');
+        } else {
+          cartCount.classList.add('hidden');
+        }
+      }
+
+      function updateWishlistCount() {
+        const wishlistCount = document.getElementById('wishlist-count');
+        if (wishlist.length > 0) {
+          wishlistCount.textContent = wishlist.length;
+          wishlistCount.classList.remove('hidden');
+        } else {
+          wishlistCount.classList.add('hidden');
+        }
+      }
+
+      function showNotification(message) {
+        const notification = document.getElementById('notification');
+        const notificationText = document.getElementById('notification-text');
+        notificationText.textContent = message;
+        notification.classList.add('show');
+        setTimeout(() => {
+          notification.classList.remove('show');
+        }, 3000);
+      }
+
+      // Add to cart functionality
+      document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('add-to-cart')) {
+          const product = e.target.getAttribute('data-product');
+          const price = e.target.getAttribute('data-price');
+          cart.push({ product, price });
+          updateCartCount();
+          showNotification(`${product} added to cart!`);
+        }
+
+        if (e.target.classList.contains('add-to-wishlist')) {
+          const product = e.target.getAttribute('data-product');
+          if (!wishlist.includes(product)) {
+            wishlist.push(product);
+            updateWishlistCount();
+            showNotification(`${product} added to wishlist!`);
+            e.target.classList.add('text-red-500');
+          }
+        }
+
+        // Hero buttons
+        if (e.target.id === 'hero-buy-btn') {
+          cart.push({ product: 'Original Moringa Cheesecake', price: '24.99' });
+          updateCartCount();
+          showNotification('Original Moringa Cheesecake added to cart!');
+        }
+
+        if (e.target.id === 'hero-learn-btn') {
+          document.querySelector('.flex.flex-col.gap-10').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        if (e.target.id === 'shop-now-btn') {
+          document.getElementById('products-grid').scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+
+      // Product filtering
+      document.getElementById('filter-all').addEventListener('click', function() {
+        filterProducts('all');
+        setActiveFilter(this);
+      });
+
+      document.getElementById('filter-original').addEventListener('click', function() {
+        filterProducts('original');
+        setActiveFilter(this);
+      });
+
+      document.getElementById('filter-flavored').addEventListener('click', function() {
+        filterProducts('flavored');
+        setActiveFilter(this);
+      });
+
+      function filterProducts(category) {
+        const products = document.querySelectorAll('.product-card');
+        products.forEach(product => {
+          if (category === 'all' || product.getAttribute('data-category') === category) {
+            product.style.display = 'flex';
+          } else {
+            product.style.display = 'none';
+          }
+        });
+      }
+
+      function setActiveFilter(activeButton) {
+        document.querySelectorAll('[id^="filter-"]').forEach(btn => {
+          btn.classList.remove('bg-green-500', 'text-white');
+          btn.classList.add('bg-gray-200', 'text-gray-700');
+        });
+        activeButton.classList.remove('bg-gray-200', 'text-gray-700');
+        activeButton.classList.add('bg-green-500', 'text-white');
+      }
+
+      // Search functionality
+      document.getElementById('search-input').addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const products = document.querySelectorAll('.product-card');
+        
+        products.forEach(product => {
+          const productName = product.querySelector('p').textContent.toLowerCase();
+          if (productName.includes(searchTerm)) {
+            product.style.display = 'flex';
+          } else {
+            product.style.display = 'none';
+          }
+        });
+      });
+
+      // Nutrition calculator
+      document.getElementById('servings-input').addEventListener('input', function(e) {
+        const servings = parseInt(e.target.value) || 1;
+        const baseCalories = 220;
+        const baseProtein = 8;
+        const baseFiber = 4;
+
+        document.getElementById('nutrition-display').innerHTML = `
+          <div>Calories: <span class="font-bold">${baseCalories * servings}</span></div>
+          <div>Protein: <span class="font-bold">${baseProtein * servings}g</span></div>
+          <div>Fiber: <span class="font-bold">${baseFiber * servings}g</span></div>
+          <div>Vitamins: <span class="font-bold">High</span></div>
+        `;
+      });
+
+      // Chat functionality
+      document.getElementById('chat-send').addEventListener('click', function() {
+        const input = document.getElementById('chat-input');
+        const message = input.value.trim();
+        if (message) {
+          const chatMessages = document.getElementById('chat-messages');
+          chatMessages.innerHTML += `<div class="text-blue-600 mb-1">You: ${message}</div>`;
+          
+          // Simple bot responses
+          const responses = [
+            "Thanks for your message! Our team will get back to you soon. 😊",
+            "That's a great question! Let me connect you with our specialist.",
+            "I'd be happy to help! What specific information are you looking for?",
+            "Our moringa cheesecakes are made fresh daily with organic ingredients!",
+            "We offer free shipping on orders over $50. Would you like to know more?"
+          ];
+          
+          setTimeout(() => {
+            const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+            chatMessages.innerHTML += `<div class="text-green-600 mb-1">Bot: ${randomResponse}</div>`;
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+          }, 1000);
+          
+          input.value = '';
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+      });
+
+      // Recipe suggestions
+      document.getElementById('recipe-btn').addEventListener('click', function() {
+        const suggestions = document.getElementById('recipe-suggestions');
+        suggestions.classList.toggle('hidden');
+        this.textContent = suggestions.classList.contains('hidden') ? 'Get Pairing Suggestions' : 'Hide Suggestions';
+      });
+
+      // Newsletter signup
+      document.getElementById('newsletter-submit').addEventListener('click', function() {
+        const email = document.getElementById('newsletter-email').value;
+        if (email && email.includes('@')) {
+          showNotification('Successfully subscribed to newsletter!');
+          document.getElementById('newsletter-email').value = '';
+        } else {
+          showNotification('Please enter a valid email address.');
+        }
+      });
+
+      document.getElementById('newsletter-btn').addEventListener('click', function() {
+        document.getElementById('newsletter-email').focus();
+        document.getElementById('newsletter-email').scrollIntoView({ behavior: 'smooth' });
+      });
+
+      // Ingredient modal
+      function showIngredientInfo(ingredient) {
+        const modal = document.getElementById('ingredient-modal');
+        const title = document.getElementById('modal-title');
+        const content = document.getElementById('modal-content');
+
+        const info = {
+          'moringa-leaves': {
+            title: 'Moringa Leaves',
+            content: 'Moringa leaves are packed with vitamins A, C, and E, calcium, potassium, and protein. Known as the "miracle tree," moringa provides essential nutrients while adding a subtle, earthy flavor to our cheesecakes. These leaves are sustainably sourced from organic farms.'
+          },
+          'moringa-tree': {
+            title: 'Moringa Tree',
+            content: 'The Moringa tree, native to the Indian subcontinent, is one of the most nutrient-dense plants on Earth. Every part of the tree is useful, but we focus on the leaves for their incredible nutritional profile. Our trees are grown in optimal tropical conditions to ensure maximum potency.'
+          },
+          'moringa-powder': {
+            title: 'Moringa Powder',
+            content: 'Our moringa powder is made from carefully dried and ground moringa leaves. This superfood powder contains 7x more vitamin C than oranges, 4x more calcium than milk, and 4x more vitamin A than carrots. It\'s the perfect addition to create nutritious and delicious desserts.'
+          }
+        };
+
+        title.textContent = info[ingredient].title;
+        content.textContent = info[ingredient].content;
+        modal.classList.remove('hidden');
+      }
+
+      document.getElementById('close-modal').addEventListener('click', function() {
+        document.getElementById('ingredient-modal').classList.add('hidden');
+      });
+
+      // Close modal when clicking outside
+      document.getElementById('ingredient-modal').addEventListener('click', function(e) {
+        if (e.target === this) {
+          this.classList.add('hidden');
+        }
+      });
+
+      // Smooth scrolling for internal links
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+          e.preventDefault();
+          const target = document.querySelector(this.getAttribute('href'));
+          if (target) {
+            target.scrollIntoView({ behavior: 'smooth' });
+          }
+        });
+      });
+
+      // Enter key for chat
+      document.getElementById('chat-input').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          document.getElementById('chat-send').click();
+        }
+      });
+
+      // Animation on scroll
+      const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+      };
+
+      const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('animate-fade-in-up');
+          }
+        });
+      }, observerOptions);
+
+      // Observe elements for animation
+      document.querySelectorAll('.product-card, .animate-fade-in-up').forEach(el => {
+        observer.observe(el);
+      });
+    </script>
+  </body>
+</html>
